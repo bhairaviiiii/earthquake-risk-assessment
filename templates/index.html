@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Earthquake Damage Risk Prediction</title>
+    <style>
+        :root{
+            --primary:#2563eb;
+            --primary-dark:#1d4ed8;
+            --secondary:#7c3aed;
+            --bg:#f8fbff;
+            --card:#ffffff;
+            --text:#0f172a;
+            --muted:#475569;
+            --border:#dbe4f0;
+            --success-bg:#dcfce7;
+            --success-text:#166534;
+            --warning-bg:#fef3c7;
+            --warning-text:#92400e;
+            --danger-bg:#fee2e2;
+            --danger-text:#991b1b;
+            --shadow:0 10px 30px rgba(15, 23, 42, 0.08);
+            --shadow-lg:0 20px 50px rgba(37, 99, 235, 0.14);
+            --radius:22px;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+        body{
+            background:
+                radial-gradient(circle at top left, rgba(37,99,235,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(124,58,237,0.10), transparent 25%),
+                linear-gradient(180deg, #eef6ff 0%, #f8fbff 40%, #ffffff 100%);
+            color:var(--text);
+            min-height:100vh;
+        }
+
+        a{
+            text-decoration:none;
+            color:inherit;
+        }
+
+        .navbar{
+            position:sticky;
+            top:0;
+            z-index:1000;
+            backdrop-filter: blur(16px);
+            background:rgba(255,255,255,0.82);
+            border-bottom:1px solid rgba(219,228,240,0.7);
+        }
+
+        .nav-inner{
+            width:min(1200px, 92%);
+            margin:auto;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:16px 0;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            font-weight:700;
+            color:#1e3a8a;
+            letter-spacing:0.2px;
+        }
+
+        .brand-logo{
+            width:42px;
+            height:42px;
+            border-radius:14px;
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+            display:grid;
+            place-items:center;
+            color:white;
+            font-size:20px;
+            box-shadow:0 8px 20px rgba(37,99,235,0.25);
+        }
+
+        .nav-links{
+            display:flex;
+            align-items:center;
+            gap:24px;
+            color:var(--muted);
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .nav-links a:hover{
+            color:var(--primary);
+        }
+
+        .nav-btn{
+            padding:11px 18px;
+            border-radius:999px;
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+            color:white !important;
+            box-shadow:0 10px 20px rgba(99,102,241,0.22);
+        }
+
+        .hero{
+            width:min(1200px, 92%);
+            margin:40px auto 20px;
+            display:grid;
+            grid-template-columns:1.2fr 0.8fr;
+            gap:30px;
+            align-items:center;
+        }
+
+        .hero-left{
+            padding:30px 0;
+        }
+
+        .badge{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            padding:10px 16px;
+            border-radius:999px;
+            background:rgba(37,99,235,0.08);
+            color:var(--primary-dark);
+            font-size:13px;
+            font-weight:700;
+            margin-bottom:18px;
+        }
+
+        .hero h1{
+            font-size:54px;
+            line-height:1.05;
+            margin-bottom:18px;
+            color:#0b1b4d;
+        }
+
+        .hero p{
+            font-size:17px;
+            line-height:1.8;
+            color:var(--muted);
+            max-width:700px;
+            margin-bottom:28px;
+        }
+
+        .hero-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:14px;
+            margin-bottom:24px;
+        }
+
+        .btn{
+            border:none;
+            cursor:pointer;
+            padding:14px 22px;
+            border-radius:16px;
+            font-size:15px;
+            font-weight:700;
+            transition:0.28s ease;
+        }
+
+        .btn-primary{
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+            color:#fff;
+            box-shadow:0 14px 28px rgba(79,70,229,0.22);
+        }
+
+        .btn-primary:hover{
+            transform:translateY(-2px);
+        }
+
+        .btn-secondary{
+            background:#fff;
+            color:var(--primary);
+            border:1px solid #cfe0ff;
+            box-shadow:var(--shadow);
+        }
+
+        .btn-secondary:hover{
+            transform:translateY(-2px);
+            border-color:#9cc1ff;
+        }
+
+        .hero-stats{
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap:16px;
+            margin-top:16px;
+        }
+
+        .stat{
+            background:rgba(255,255,255,0.76);
+            border:1px solid rgba(219,228,240,0.9);
+            border-radius:20px;
+            padding:18px;
+            box-shadow:var(--shadow);
+        }
+
+        .stat h3{
+            font-size:28px;
+            color:#0f172a;
+            margin-bottom:6px;
+        }
+
+        .stat p{
+            margin:0;
+            font-size:13px;
+            line-height:1.5;
+            color:#64748b;
+        }
+
+        .hero-right{
+            display:grid;
+            gap:18px;
+        }
+
+        .glass-card{
+            background:rgba(255,255,255,0.80);
+            border:1px solid rgba(219,228,240,0.85);
+            border-radius:28px;
+            box-shadow:var(--shadow-lg);
+            padding:24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .mini-chart{
+            height:220px;
+            border-radius:20px;
+            padding:18px;
+            background:linear-gradient(180deg, #f8fbff, #eef4ff);
+            position:relative;
+            overflow:hidden;
+        }
+
+        .chart-grid{
+            position:absolute;
+            inset:18px;
+            border-left:2px solid #cbd5e1;
+            border-bottom:2px solid #cbd5e1;
+        }
+
+        .bars{
+            position:absolute;
+            left:55px;
+            right:18px;
+            bottom:40px;
+            top:28px;
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-around;
+            gap:18px;
+        }
+
+        .bar{
+            width:52px;
+            border-radius:16px 16px 6px 6px;
+            background:linear-gradient(180deg, #60a5fa, #2563eb);
+            position:relative;
+            box-shadow:0 10px 18px rgba(37,99,235,0.18);
+        }
+
+        .bar:nth-child(2){
+            background:linear-gradient(180deg, #a78bfa, #7c3aed);
+        }
+
+        .bar:nth-child(3){
+            background:linear-gradient(180deg, #fca5a5, #ef4444);
+        }
+
+        .bar span{
+            position:absolute;
+            bottom:-28px;
+            left:50%;
+            transform:translateX(-50%);
+            font-size:12px;
+            color:#475569;
+            font-weight:700;
+            white-space:nowrap;
+        }
+
+        .bar b{
+            position:absolute;
+            top:-24px;
+            left:50%;
+            transform:translateX(-50%);
+            font-size:12px;
+            color:#1e293b;
+        }
+
+        .pulse-card h3{
+            font-size:20px;
+            margin-bottom:10px;
+            color:#0b1b4d;
+        }
+
+        .pulse-card p{
+            color:var(--muted);
+            line-height:1.7;
+            font-size:14px;
+        }
+
+        .risk-pill-wrap{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-top:14px;
+        }
+
+        .risk-pill{
+            padding:9px 14px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:700;
+        }
+
+        .pill-low{
+            background:#dcfce7;
+            color:#166534;
+        }
+
+        .pill-medium{
+            background:#fef3c7;
+            color:#92400e;
+        }
+
+        .pill-high{
+            background:#fee2e2;
+            color:#991b1b;
+        }
+
+        .section{
+            width:min(1200px, 92%);
+            margin:70px auto;
+        }
+
+        .section-header{
+            text-align:center;
+            margin-bottom:34px;
+        }
+
+        .section-header span{
+            display:inline-block;
+            margin-bottom:12px;
+            padding:8px 14px;
+            border-radius:999px;
+            background:#eef4ff;
+            color:var(--primary);
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .section-header h2{
+            font-size:38px;
+            color:#0b1b4d;
+            margin-bottom:12px;
+        }
+
+        .section-header p{
+            max-width:760px;
+            margin:auto;
+            color:var(--muted);
+            line-height:1.8;
+            font-size:16px;
+        }
+
+        .features{
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap:22px;
+        }
+
+        .feature-card{
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:24px;
+            padding:26px;
+            box-shadow:var(--shadow);
+            transition:0.3s ease;
+        }
+
+        .feature-card:hover{
+            transform:translateY(-5px);
+            box-shadow:0 20px 35px rgba(15,23,42,0.10);
+        }
+
+        .icon{
+            width:52px;
+            height:52px;
+            border-radius:16px;
+            display:grid;
+            place-items:center;
+            margin-bottom:16px;
+            font-size:22px;
+            color:#fff;
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .feature-card h3{
+            font-size:20px;
+            margin-bottom:10px;
+            color:#0f172a;
+        }
+
+        .feature-card p{
+            color:var(--muted);
+            line-height:1.75;
+            font-size:14px;
+        }
+
+        .analysis-grid{
+            display:grid;
+            grid-template-columns:1.2fr 0.8fr;
+            gap:24px;
+            align-items:start;
+        }
+
+        .analysis-card,
+        .form-section,
+        .legend-card,
+        .steps-card,
+        .faq-card,
+        .insight-card{
+            background:var(--card);
+            border:1px solid var(--border);
+            border-radius:26px;
+            box-shadow:var(--shadow);
+        }
+
+        .analysis-card{
+            padding:28px;
+        }
+
+        .analysis-card h3{
+            font-size:24px;
+            margin-bottom:18px;
+            color:#0b1b4d;
+        }
+
+        .analysis-card p{
+            color:var(--muted);
+            line-height:1.85;
+            margin-bottom:20px;
+        }
+
+        .progress-group{
+            display:grid;
+            gap:16px;
+        }
+
+        .progress-item{
+            background:#f8fbff;
+            border:1px solid #e2ebf6;
+            border-radius:18px;
+            padding:16px;
+        }
+
+        .progress-top{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:10px;
+            font-size:14px;
+            font-weight:700;
+            color:#1e293b;
+        }
+
+        .track{
+            height:10px;
+            border-radius:999px;
+            background:#e5edf7;
+            overflow:hidden;
+        }
+
+        .fill{
+            height:100%;
+            border-radius:999px;
+            background:linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .legend-card{
+            padding:24px;
+        }
+
+        .legend-card h3{
+            font-size:22px;
+            margin-bottom:16px;
+            color:#0b1b4d;
+        }
+
+        .legend-list{
+            display:grid;
+            gap:14px;
+        }
+
+        .legend-item{
+            border-radius:18px;
+            padding:16px;
+            border:1px solid var(--border);
+        }
+
+        .legend-item strong{
+            display:block;
+            font-size:16px;
+            margin-bottom:6px;
+        }
+
+        .legend-item p{
+            color:var(--muted);
+            line-height:1.65;
+            font-size:14px;
+        }
+
+        .legend-low{ background:#f0fdf4; }
+        .legend-medium{ background:#fffbeb; }
+        .legend-high{ background:#fff1f2; }
+
+        .form-wrapper{
+            display:grid;
+            grid-template-columns:0.9fr 1.1fr;
+            gap:26px;
+            align-items:start;
+        }
+
+        .steps-card{
+            padding:28px;
+            position:sticky;
+            top:95px;
+        }
+
+        .steps-card h3{
+            font-size:24px;
+            margin-bottom:16px;
+            color:#0b1b4d;
+        }
+
+        .steps-card p{
+            color:var(--muted);
+            line-height:1.8;
+            margin-bottom:20px;
+            font-size:14px;
+        }
+
+        .step{
+            display:flex;
+            gap:14px;
+            margin-bottom:18px;
+            align-items:flex-start;
+        }
+
+        .step-number{
+            width:34px;
+            height:34px;
+            flex-shrink:0;
+            border-radius:50%;
+            display:grid;
+            place-items:center;
+            color:#fff;
+            font-weight:700;
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow:0 10px 18px rgba(79,70,229,0.18);
+        }
+
+        .step div h4{
+            font-size:16px;
+            margin-bottom:5px;
+            color:#0f172a;
+        }
+
+        .step div p{
+            margin:0;
+            font-size:13px;
+            line-height:1.7;
+        }
+
+        .form-section{
+            padding:30px;
+        }
+
+        .form-section h3{
+            font-size:28px;
+            margin-bottom:8px;
+            color:#0b1b4d;
+        }
+
+        .form-section .subtext{
+            color:var(--muted);
+            margin-bottom:26px;
+            line-height:1.75;
+            font-size:14px;
+        }
+
+        .form-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px 20px;
+        }
+
+        .form-group{
+            display:flex;
+            flex-direction:column;
+        }
+
+        .form-group label{
+            margin-bottom:8px;
+            font-size:14px;
+            font-weight:700;
+            color:#334155;
+        }
+
+        .form-group input,
+        .form-group select{
+            padding:14px 15px;
+            border:1px solid #cfd9e5;
+            border-radius:14px;
+            outline:none;
+            font-size:14px;
+            background:#f8fbff;
+            transition:0.28s ease;
+            color:#0f172a;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus{
+            border-color:var(--primary);
+            box-shadow:0 0 0 4px rgba(37,99,235,0.12);
+            background:#fff;
+        }
+
+        .full-width{
+            grid-column:span 2;
+        }
+
+        .predict-btn{
+            width:100%;
+            padding:15px;
+            margin-top:24px;
+            border:none;
+            border-radius:16px;
+            background:linear-gradient(135deg, var(--primary), var(--secondary));
+            color:#fff;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            transition:0.28s ease;
+            box-shadow:0 14px 26px rgba(79,70,229,0.24);
+        }
+
+        .predict-btn:hover{
+            transform:translateY(-2px);
+        }
+
+        .result{
+            margin-top:22px;
+            padding:18px;
+            border-radius:16px;
+            text-align:center;
+            font-size:18px;
+            font-weight:700;
+            display:none;
+            line-height:1.7;
+            border:1px solid transparent;
+        }
+
+        .low{
+            display:block;
+            background:var(--success-bg);
+            color:var(--success-text);
+            border-color:#86efac;
+        }
+
+        .medium{
+            display:block;
+            background:var(--warning-bg);
+            color:var(--warning-text);
+            border-color:#fcd34d;
+        }
+
+        .high{
+            display:block;
+            background:var(--danger-bg);
+            color:var(--danger-text);
+            border-color:#fca5a5;
+        }
+
+        .error{
+            display:block;
+            background:#fff1f2;
+            color:#be123c;
+            border-color:#fda4af;
+        }
+
+        .faq-card{
+            padding:30px;
+        }
+
+        .faq-item{
+            padding:18px 0;
+            border-bottom:1px solid #e8eef6;
+        }
+
+        .faq-item:last-child{
+            border-bottom:none;
+        }
+
+        .faq-item h4{
+            font-size:17px;
+            margin-bottom:8px;
+            color:#0f172a;
+        }
+
+        .faq-item p{
+            color:var(--muted);
+            line-height:1.8;
+            font-size:14px;
+        }
+
+        .insights-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:24px;
+        }
+
+        .insight-card{
+            padding:26px;
+            transition:0.3s ease;
+        }
+
+        .insight-card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 20px 36px rgba(15,23,42,0.10);
+        }
+
+        .chart-head{
+            margin-bottom:18px;
+        }
+
+        .chart-head h3{
+            font-size:22px;
+            margin-bottom:8px;
+            color:#0b1b4d;
+        }
+
+        .chart-head p{
+            color:var(--muted);
+            line-height:1.7;
+            font-size:14px;
+        }
+
+        .full-chart{
+            grid-column:span 2;
+        }
+
+        .insight-card canvas{
+            width:100% !important;
+            height:320px !important;
+        }
+
+        .footer{
+            width:min(1200px, 92%);
+            margin:60px auto 30px;
+            border-top:1px solid #dbe4f0;
+            padding-top:22px;
+            display:flex;
+            justify-content:space-between;
+            gap:20px;
+            flex-wrap:wrap;
+            color:#64748b;
+            font-size:14px;
+        }
+
+        @media (max-width: 1024px){
+            .hero,
+            .analysis-grid,
+            .form-wrapper{
+                grid-template-columns:1fr;
+            }
+
+            .features{
+                grid-template-columns:1fr 1fr;
+            }
+
+            .steps-card{
+                position:relative;
+                top:0;
+            }
+
+            .hero h1{
+                font-size:44px;
+            }
+        }
+
+        @media (max-width: 900px){
+            .insights-grid{
+                grid-template-columns:1fr;
+            }
+
+            .full-chart{
+                grid-column:span 1;
+            }
+
+            .insight-card canvas{
+                height:280px !important;
+            }
+        }
+
+        @media (max-width: 700px){
+            .nav-links{
+                display:none;
+            }
+
+            .hero{
+                margin-top:20px;
+            }
+
+            .hero h1{
+                font-size:34px;
+            }
+
+            .hero p{
+                font-size:15px;
+            }
+
+            .hero-stats{
+                grid-template-columns:1fr;
+            }
+
+            .features{
+                grid-template-columns:1fr;
+            }
+
+            .form-grid{
+                grid-template-columns:1fr;
+            }
+
+            .full-width{
+                grid-column:span 1;
+            }
+
+            .form-section,
+            .steps-card,
+            .analysis-card,
+            .legend-card,
+            .faq-card,
+            .insight-card{
+                padding:22px;
+            }
+
+            .section-header h2{
+                font-size:30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div class="brand">
+                <div class="brand-logo">🌍</div>
+                <span>QuakeRisk AI</span>
+            </div>
+
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#analysis">Analysis</a>
+                <a href="#predictor">Predictor</a>
+                <a href="#insights">Insights</a>
+                <a href="#predictor" class="nav-btn">Try Model</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-left">
+            <div class="badge">⚡ AI-Powered Structural Risk Estimation</div>
+            <h1>Earthquake Damage Risk Assessment for Smarter Building Safety</h1>
+            <p>
+                This intelligent web application evaluates building-related factors such as age,
+                floor count, foundation type, roof type, ground conditions, and structural layout
+                to predict the expected earthquake damage risk level. It is designed to support
+                awareness, preparedness, and quick building risk interpretation.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#predictor"><button class="btn btn-primary">Start Prediction</button></a>
+                <a href="#about"><button class="btn btn-secondary">Explore Project</button></a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat">
+                    <h3>12</h3>
+                    <p>Input features considered for structural and environmental assessment.</p>
+                </div>
+                <div class="stat">
+                    <h3>3</h3>
+                    <p>Output categories: Low, Medium, and High damage risk levels.</p>
+                </div>
+                <div class="stat">
+                    <h3>AI</h3>
+                    <p>Machine learning based prediction for fast and consistent risk evaluation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <div class="glass-card">
+                <div class="mini-chart">
+                    <div class="chart-grid"></div>
+                    <div class="bars">
+                        <div class="bar" style="height: 42%;">
+                            <b>Low</b>
+                            <span>Safer</span>
+                        </div>
+                        <div class="bar" style="height: 68%;">
+                            <b>Medium</b>
+                            <span>Moderate</span>
+                        </div>
+                        <div class="bar" style="height: 88%;">
+                            <b>High</b>
+                            <span>Critical</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card pulse-card">
+                <h3>Risk Interpretation</h3>
+                <p>
+                    The prediction is generated from structural characteristics of a building.
+                    More vulnerable materials, unfavorable site conditions, and irregular building
+                    configurations can increase the expected damage risk during seismic activity.
+                </p>
+                <div class="risk-pill-wrap">
+                    <span class="risk-pill pill-low">Low Risk</span>
+                    <span class="risk-pill pill-medium">Medium Risk</span>
+                    <span class="risk-pill pill-high">High Risk</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="about">
+        <div class="section-header">
+            <span>Project Overview</span>
+            <h2>What this model actually does</h2>
+            <p>
+                This system estimates how risky a building may be during an earthquake using
+                important construction, design, and location-related features. Instead of
+                relying only on manual judgment, the model provides a faster and data-driven
+                indication of possible structural vulnerability.
+            </p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="icon">🏗️</div>
+                <h3>Structural Analysis</h3>
+                <p>
+                    The application studies building properties like number of floors, age,
+                    height, foundation type, roof type, and floor material to estimate how
+                    these characteristics influence earthquake damage risk.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Smart Prediction</h3>
+                <p>
+                    A trained machine learning model processes the user inputs and classifies
+                    the building into a meaningful risk level, helping users understand whether
+                    the building appears less vulnerable or highly exposed.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="icon">🛡️</div>
+                <h3>Awareness & Preparedness</h3>
+                <p>
+                    This project can support educational demonstrations, research explanation,
+                    and awareness about building safety by showing how different structural
+                    decisions can influence predicted earthquake risk.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="analysis">
+        <div class="section-header">
+            <span>Model Analysis</span>
+            <h2>Important factors considered by the system</h2>
+            <p>
+                The following categories represent the kinds of features that are important for Earthquake Risk Analysis.
+            </p>
+        </div>
+
+        <div class="analysis-grid">
+            <div class="analysis-card">
+                <h3>Feature Impact Overview</h3>
+                <p>
+                    Factors such as structural age, material quality, plan shape, and foundation stability are
+                    usually very important in earthquake vulnerability assessment.
+                </p>
+
+                <div class="progress-group">
+                    <div class="progress-item">
+                        <div class="progress-top">
+                            <span>Building Age & Height</span>
+                            <span>High Influence</span>
+                        </div>
+                        <div class="track"><div class="fill" style="width: 88%;"></div></div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-top">
+                            <span>Foundation & Roof Type</span>
+                            <span>High Influence</span>
+                        </div>
+                        <div class="track"><div class="fill" style="width: 82%;"></div></div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-top">
+                            <span>Ground & Surface Condition</span>
+                            <span>Moderate Influence</span>
+                        </div>
+                        <div class="track"><div class="fill" style="width: 71%;"></div></div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-top">
+                            <span>Plan Configuration & Position</span>
+                            <span>Moderate Influence</span>
+                        </div>
+                        <div class="track"><div class="fill" style="width: 66%;"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="legend-card">
+                <h3>Risk Levels</h3>
+
+                <div class="legend-list">
+                    <div class="legend-item legend-low">
+                        <strong>Low Risk</strong>
+                        <p>
+                            Indicates comparatively lower expected damage vulnerability based on
+                            the entered features.
+                        </p>
+                    </div>
+
+                    <div class="legend-item legend-medium">
+                        <strong>Medium Risk</strong>
+                        <p>
+                            Suggests moderate vulnerability where some structural or site factors
+                            may increase damage possibility.
+                        </p>
+                    </div>
+
+                    <div class="legend-item legend-high">
+                        <strong>High Risk</strong>
+                        <p>
+                            Shows strong indicators of earthquake damage vulnerability and higher
+                            structural concern.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="predictor">
+        <div class="section-header">
+            <span>Live Prediction</span>
+            <h2>Try the Earthquake Risk Predictor</h2>
+            <p>
+                Enter the building details below to estimate the likely earthquake damage risk.
+            </p>
+        </div>
+
+        <div class="form-wrapper">
+            <div class="steps-card">
+                <h3>How it works</h3>
+                <p>
+                    This prediction pipeline converts your building details into model-readable
+                    input and returns a risk label with confidence score.
+                </p>
+
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h4>Enter structural details</h4>
+                        <p>Provide building and environmental properties from the available fields.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h4>Model processes inputs</h4>
+                        <p>The backend prepares the features and sends them to the trained ML model.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h4>Get risk prediction</h4>
+                        <p>You receive a classified risk level and confidence percentage instantly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>AI Building Risk Predictor</h3>
+                <p class="subtext">
+                    Fill in the values carefully for a more meaningful damage-risk estimation.
+                </p>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>District ID</label>
+                        <input id="district_id" type="number" placeholder="Enter district id">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Count Floors Before Earthquake</label>
+                        <input id="count_floors_pre_eq" type="number" placeholder="Enter floors count">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Age of Building</label>
+                        <input id="age_building" type="number" placeholder="Enter building age">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plinth Area (sq ft)</label>
+                        <input id="plinth_area_sq_ft" type="number" placeholder="Enter area">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Height Before Earthquake (ft)</label>
+                        <input id="height_ft_pre_eq" type="number" placeholder="Enter height">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Land Surface Condition</label>
+                        <select id="land_surface_condition">
+                            <option value="Flat">Flat</option>
+                            <option value="Moderate slope">Moderate slope</option>
+                            <option value="Steep slope">Steep slope</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Foundation Type</label>
+                        <select id="foundation_type">
+                            <option value="Bamboo/Timber">Bamboo/Timber</option>
+                            <option value="Cement-Stone/Brick">Cement-Stone/Brick</option>
+                            <option value="Mud mortar-Stone/Brick">Mud mortar-Stone/Brick</option>
+                            <option value="Other">Other</option>
+                            <option value="RC">RC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Roof Type</label>
+                        <select id="roof_type">
+                            <option value="Bamboo/Timber-Heavy roof">Bamboo/Timber-Heavy roof</option>
+                            <option value="Bamboo/Timber-Light roof">Bamboo/Timber-Light roof</option>
+                            <option value="RCC/RB/RBC">RCC/RB/RBC</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ground Floor Type</label>
+                        <select id="ground_floor_type">
+                            <option value="Brick/Stone">Brick/Stone</option>
+                            <option value="Mud">Mud</option>
+                            <option value="Other">Other</option>
+                            <option value="RC">RC</option>
+                            <option value="Timber">Timber</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Other Floor Type</label>
+                        <select id="other_floor_type">
+                            <option value="Not applicable">Not applicable</option>
+                            <option value="RCC/RB/RBC">RCC/RB/RBC</option>
+                            <option value="TImber/Bamboo-Mud">TImber/Bamboo-Mud</option>
+                            <option value="Timber-Planck">Timber-Planck</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Position</label>
+                        <select id="position">
+                            <option value="Attached-1 side">Attached-1 side</option>
+                            <option value="Attached-2 side">Attached-2 side</option>
+                            <option value="Attached-3 side">Attached-3 side</option>
+                            <option value="Not attached">Not attached</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plan Configuration</label>
+                        <select id="plan_configuration">
+                            <option value="Building with Central Courtyard">Building with Central Courtyard</option>
+                            <option value="E-shape">E-shape</option>
+                            <option value="H-shape">H-shape</option>
+                            <option value="L-shape">L-shape</option>
+                            <option value="Multi-projected">Multi-projected</option>
+                            <option value="Others">Others</option>
+                            <option value="Rectangular">Rectangular</option>
+                            <option value="Square">Square</option>
+                            <option value="T-shape">T-shape</option>
+                            <option value="U-shape">U-shape</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="predict-btn" onclick="predict()">Predict Risk</button>
+                <div class="result" id="result"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="insights">
+        <div class="section-header">
+            <span>Visual Insights</span>
+            <h2>Model Insights & Risk Trends</h2>
+            <p>
+                Building Vulnerability Insights & Risk Patterns
+            </p>
+        </div>
+
+        <div class="insights-grid">
+            <div class="insight-card">
+                <div class="chart-head">
+                    <h3>Risk Category Balance</h3>
+                    <p>Overall distribution across predicted building risk levels.</p>
+                </div>
+                <canvas id="riskChart"></canvas>
+            </div>
+
+            <div class="insight-card">
+                <div class="chart-head">
+                    <h3>Feature Influence</h3>
+                    <p>Important factors that usually affect structural vulnerability.</p>
+                </div>
+                <canvas id="featureChart"></canvas>
+            </div>
+
+            <div class="insight-card full-chart">
+                <div class="chart-head">
+                    <h3>Structural Vulnerability Trend</h3>
+                    <p>Illustrative comparison of estimated vulnerability across building conditions.</p>
+                </div>
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div>© 2026 QuakeRisk AI — Earthquake Damage Risk Assessment System</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function predict() {
+            fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    district_id: document.getElementById("district_id").value,
+                    count_floors_pre_eq: document.getElementById("count_floors_pre_eq").value,
+                    age_building: document.getElementById("age_building").value,
+                    plinth_area_sq_ft: document.getElementById("plinth_area_sq_ft").value,
+                    height_ft_pre_eq: document.getElementById("height_ft_pre_eq").value,
+                    land_surface_condition: document.getElementById("land_surface_condition").value,
+                    foundation_type: document.getElementById("foundation_type").value,
+                    roof_type: document.getElementById("roof_type").value,
+                    ground_floor_type: document.getElementById("ground_floor_type").value,
+                    other_floor_type: document.getElementById("other_floor_type").value,
+                    position: document.getElementById("position").value,
+                    plan_configuration: document.getElementById("plan_configuration").value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultBox = document.getElementById("result");
+
+                if (data.error) {
+                    resultBox.className = "result error";
+                    resultBox.innerHTML = "Error: " + data.error;
+                } else {
+                    let riskClass = "medium";
+
+                    if (data.risk_level.toLowerCase().includes("low")) {
+                        riskClass = "low";
+                    } else if (data.risk_level.toLowerCase().includes("high")) {
+                        riskClass = "high";
+                    }
+
+                    resultBox.className = "result " + riskClass;
+                    resultBox.innerHTML =
+                        "Risk Level: " + data.risk_level +
+                        "<br>Confidence: " + data.confidence + "%";
+
+                    resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+            })
+            .catch(error => {
+                const resultBox = document.getElementById("result");
+                resultBox.className = "result error";
+                resultBox.innerHTML = "Error: " + error;
+                resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+        }
+    </script>
+
+    <script>
+        const commonGridColor = 'rgba(148, 163, 184, 0.16)';
+        const commonTickColor = '#64748b';
+
+        new Chart(document.getElementById('riskChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+                datasets: [{
+                    data: [32, 44, 24],
+                    backgroundColor: ['#34d399', '#60a5fa', '#a78bfa'],
+                    borderColor: '#ffffff',
+                    borderWidth: 6,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: commonTickColor,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 18,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('featureChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Age', 'Foundation', 'Roof', 'Height', 'Floors', 'Plan'],
+                datasets: [{
+                    label: 'Influence Score',
+                    data: [88, 84, 78, 73, 69, 62],
+                    backgroundColor: [
+                        '#2563eb',
+                        '#3b82f6',
+                        '#60a5fa',
+                        '#7c3aed',
+                        '#8b5cf6',
+                        '#c4b5fd'
+                    ],
+                    borderRadius: 12,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: commonTickColor,
+                            font: {
+                                weight: '600'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: commonGridColor
+                        },
+                        ticks: {
+                            color: commonTickColor
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('comparisonChart'), {
+            type: 'line',
+            data: {
+                labels: ['Very Old', 'Old', 'Moderate', 'New', 'Very New'],
+                datasets: [
+                    {
+                        label: 'Weak Structural Condition',
+                        data: [90, 82, 68, 52, 39],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.10)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#2563eb'
+                    },
+                    {
+                        label: 'Strong Structural Condition',
+                        data: [68, 58, 47, 35, 24],
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124, 58, 237, 0.08)',
+                        fill: true,
+                        tension: 0.38,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#7c3aed'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: commonTickColor,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 18,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(148, 163, 184, 0.08)'
+                        },
+                        ticks: {
+                            color: commonTickColor,
+                            font: {
+                                weight: '600'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: {
+                            color: commonGridColor
+                        },
+                        ticks: {
+                            color: commonTickColor
+                        },
+                        title: {
+                            display: true,
+                            text: 'Estimated Vulnerability',
+                            color: commonTickColor,
+                            font: {
+                                weight: '700'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
